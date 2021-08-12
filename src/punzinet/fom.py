@@ -58,8 +58,6 @@ def gen_sparse_matrices(gen_mass, range_idx_low, range_idx_high, sig_m_range, m_
     i[0, :] = torch.cat(v1)
     i[1, :] = torch.cat(v2)
     v = torch.ByteTensor([1]).expand(i.shape[1])
-    # sparse_shape = torch.Size([m_range_len, len(gen_mass)])
-    # in_range = torch.sparse.ByteTensor(i, v, sparse_shape)
 
     _, inverse_indices = torch.unique(gen_mass[sig_m_range], sorted=True, return_inverse=True)
     i_sig = torch.zeros(2, len(inverse_indices), dtype=torch.long)

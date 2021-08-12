@@ -10,12 +10,12 @@ def set_weights(df, scale):
     df['weights'] = df.weights.astype('single')
 
 
-def set_range_index(df, m_range, width):
+def set_range_index(df, m_range, width, n_sigma=2):
     m_gev = ((m_range / 1000).reshape(-1, 1))
     w = width.loc[m_range].w.values
 
-    low_bound = (m_gev**2 - 2 * w.reshape(-1, 1))
-    high_bound = (m_gev**2 + 2 * w.reshape(-1, 1))
+    low_bound = (m_gev**2 - n_sigma * w.reshape(-1, 1))
+    high_bound = (m_gev**2 + n_sigma * w.reshape(-1, 1))
     in_range = (low_bound < df.M2.values) & (df.M2.values < high_bound)
 
     range_idx_low = np.ones(len(df), dtype=np.int) * in_range.shape[0] + 100
