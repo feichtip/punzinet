@@ -33,9 +33,11 @@ def bce_training(df, X, net, device='cpu', epochs=200, batch_size=2**10, lr=1, v
     start = time.time()
 
     if progress_bar:
-        iterator = tqdm(range(epochs), desc='training network', total=epochs, leave=True, unit='epochs', position=0)
+        iterator = tqdm(range(epochs), desc='training network', total=epochs, unit='epochs', leave=True)
+        print_fun = iterator.set_description
     else:
         iterator = range(epochs)
+        print_fun = print
 
     for epoch in iterator:  # loop over the dataset multiple times
         running_loss = 0.0
@@ -63,18 +65,20 @@ def bce_training(df, X, net, device='cpu', epochs=200, batch_size=2**10, lr=1, v
 
         average_loss = running_loss / (i + 1)
 
-        if verbose:
-            print('[%d, %5d] loss: %.5f' % (epoch + 1, i + 1, average_loss))
+        if verbose or progress_bar:
+            print_fun('[%d, %5d] loss: %.5f' % (epoch + 1, i + 1, average_loss))
         else:
             if (epoch % int(epochs / 20) == 0) or (epoch == epochs - 1):
-                print('[%d, %5d] loss: %.5f' % (epoch + 1, i + 1, average_loss))
+                print_fun('[%d, %5d] loss: %.5f' % (epoch + 1, i + 1, average_loss))
 
         loss_list.append(average_loss)
         scheduler.step(average_loss)
         running_loss = 0.0
 
     training_time = time.time() - start
-    print(f'Finished Training in {training_time/60:{.3}f} minutes')
+
+    if not progress_bar:
+        print(f'Finished Training in {training_time/60:{.3}f} minutes')
 
     # move network back to previous device
     net.to(current_device)
@@ -82,7 +86,7 @@ def bce_training(df, X, net, device='cpu', epochs=200, batch_size=2**10, lr=1, v
     return net, loss_list
 
 
-def punzi_training(df, X, net, n_masses, n_gen_signal, target_lumi, device='cpu', epochs=500, lr=0.01, scaling=1, verbose=False, progress_bar=True, **kwargs):  # SGD instead ?
+def punzi_training(df, X, net, n_masses, n_gen_signal, target_lumi, device='cpu', epochs=500, lr=0.01, scaling=1, verbose=False, progress_bar=True, **kwargs):
     current_device = next(net.parameters()).device
     print(f'training on {device}')
     net.to(device)
@@ -99,9 +103,11 @@ def punzi_training(df, X, net, n_masses, n_gen_signal, target_lumi, device='cpu'
     sig_sparse, bkg_sparse = fom.gen_sparse_matrices(df.gen_mass, df.range_idx_low, df.range_idx_high, df.sig_m_range, n_masses)
 
     if progress_bar:
-        iterator = tqdm(range(epochs), desc='training network', total=epochs, leave=True, unit='epochs', position=0)
+        iterator = tqdm(range(epochs), desc='training network', total=epochs, unit='epochs', leave=True)
+        print_fun = iterator.set_description
     else:
         iterator = range(epochs)
+        print_fun = print
 
     for epoch in iterator:  # loop over the dataset multiple times
         # zero the parameter gradients
@@ -117,17 +123,19 @@ def punzi_training(df, X, net, n_masses, n_gen_signal, target_lumi, device='cpu'
         loss.backward()
         optimizer.step()
 
-        if verbose:
-            print('[%d] loss: %.5f' % (epoch + 1, loss.item()))
+        if verbose or progress_bar:
+            print_fun('[%d] loss: %.5f' % (epoch + 1, loss.item()))
         else:
             if (epoch % int(epochs / 20) == 0) or (epoch == epochs - 1):
-                print('[%d] loss: %.5f' % (epoch + 1, loss.item()))
+                print_fun('[%d] loss: %.5f' % (epoch + 1, loss.item()))
 
         loss_list.append(loss.item())
         scheduler.step(loss.item())
 
     training_time = time.time() - start
-    print(f'Finished Training in {training_time/60:{.3}f} minutes')
+
+    if not progress_bar:
+        print(f'Finished Training in {training_time/60:{.3}f} minutes')
 
     # move network back to previous device
     net.to(current_device)
