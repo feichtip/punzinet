@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 import pandas as pd
-# from scipy.sparse import coo_matrix
 from scipy.sparse import csr_matrix
 import tqdm
 
@@ -67,13 +66,11 @@ def gen_sparse_matrices(gen_mass, range_idx_low, range_idx_high, sig_m_range, m_
     i_sig[0, :] = inverse_indices
     i_sig[1, :] = torch.arange(len(gen_mass))[sig_m_range]
     v_sig = torch.ByteTensor([1]).expand(i_sig.shape[1])
-    #sig_sparse = torch.sparse.ByteTensor(i_sig, v_sig, sparse_shape) * in_range
 
     i_bkg = torch.zeros(2, (idx_range * bkg).sum(), dtype=torch.long)
     i_bkg[0, :] = torch.cat(v1_bkg)
     i_bkg[1, :] = torch.cat(v2_bkg)
     v_bkg = torch.ByteTensor([1]).expand(i_bkg.shape[1])
-    #bkg_sparse = torch.sparse.ByteTensor(i_bkg, v_bkg, sparse_shape)
 
     if numpy:
         sparse_shape = (m_range_len, len(gen_mass))
@@ -113,8 +110,6 @@ def optimal_cut(df, output, width, mass_range, n_gen_signal, steps=200, scaling=
         idx_start = (i * split_every)
         idx_stop = (i * split_every) + len(cut)
 
-        # csr_matrix
-        # coo_matrix
         v_out = torch.ByteTensor([1]).expand(non_zero_i.shape[1]).numpy()
         outputs = csr_matrix((v_out, non_zero_i), shape=(len(output), len(cut))).astype('float')
 
@@ -122,9 +117,6 @@ def optimal_cut(df, output, width, mass_range, n_gen_signal, steps=200, scaling=
         bkg_eve[:, idx_start:idx_stop] = np.asarray(((bkg_sparse @ outputs.multiply(output_weights)) * scaling).todense())
 
     fom_array = punzi_sensitivity(sig_eff, bkg_eve, numpy=True)
-
-    # del non_zero_i
-    # del outputs
 
     # get the cut indices and FOM values for the lowest Punzi sensitivity
     indices = fom_array.argmin(axis=1)
