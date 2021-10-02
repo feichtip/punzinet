@@ -17,19 +17,19 @@ For more information on the Punzi figure of merit and its use see the original p
 
 The given implementation is based on the search for an invisibly decaying Z' in the process <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to\mu^%2b\mu^-Z\text{'}">.
 Even though the details of the usage can be very analysis dependent, the provided code can be easily adapted for any other new physics search with multiple signal hypotheses, as long as the data is prepared in the right format.
-In the present case the mass of the Z' as well as the cross section are free parameters of the search. The signal was generated with as mass starting from 100 MeV up to 10 GeV, in 100 MeV steps and the main SM backgrounds are <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to\mu^%2b\mu^-(\gamma)">, <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to\tau^%2b\tau^-"> and <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to e^%2be^-\mu^%2b\mu^-">.
+In the present case the mass of the Z' as well as the cross section are free parameters of the search. The signal was generated with a mass starting from 100 MeV up to 10 GeV, in 100 MeV steps, and the main SM backgrounds are <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to\mu^%2b\mu^-(\gamma)">, <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to\tau^%2b\tau^-"> and <img src="https://render.githubusercontent.com/render/math?math=e^%2be^-\to e^%2be^-\mu^%2b\mu^-">.
 
 ### Prepare training data
 
-The training data should be provided in a pandas DataFrame with the following columns present:
-* category
-* range_idx_low
-* range_idx_high
-* gen_mass
-* sig_m_range
-* labels
-* M
-* weights
+The training data should be provided in a pandas DataFrame with the following columns:
+* `category`:  the background category (e.g. 'mumu') or in case of signal the generated mass
+* `range_idx_low`: index of the first bin in which the event appears
+* `range_idx_high`: index of the last bin in which the event appears
+* `gen_mass`: the generated mass for signals (in case of background set to -999)
+* `sig_m_range`: 1 if the signal hypotheses is used for the training (in the mass range), 0 otherwise
+* `labels`: 0 for background, 1 for signal
+* `M`: the reconstructed mass of the Z' (recoil mass)
+* `weights`: a weight factor to account for different sample sizes and luminosity
 
 
 | category   |   range_idx_low |   range_idx_high |   gen_mass |   sig_m_range |   labels |       M |   weights |
@@ -48,8 +48,16 @@ The training data should be provided in a pandas DataFrame with the following co
 
 ### Pretrain model
 
+In a first step the model has to be pretrained using a conventional loss function such as BCE. This is implemented in `train.bce_training()`.
+
 ### Run the training with the Punzi-loss function
 
+Now we can use the pretrained network and continue training with the Punzi-loss function. This is implemented in `train.punzi_training()`.
+The loss is calculated simultaneously for all mass hypotheses by utilising sparse matrices in `fom.py`.
+
+A full working example with training data is provided in the examples directory.
+In this case the training with the Punzi-loss is performed without dividing the sample into batches.
+When the training is not consistent and depends a lot on the inital choice of hyperparameters, additional batching can help to escape local minima.
 
 [1]: link_to_paper
 [2]: https://arxiv.org/abs/physics/0308063 "Sensitivity of searches for new signals and its optimization"
