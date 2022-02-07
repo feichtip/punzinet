@@ -46,6 +46,11 @@ The training data should be provided in a pandas DataFrame with the following co
 | eemumu     |              43 |               43 |       -999 |             0 |        0 | 8.70446 | 0.05      |
 
 
+### Example dataset
+
+Example data that follows the mentioned scheme and was used to derive the results in the paper are available at `examples/training_data.feather` (hosted by Git Large File Storage).
+
+
 ### Pretrain model
 
 In a first step the model has to be pretrained using a conventional loss function such as BCE. This is implemented in `train.bce_training()`.
@@ -59,5 +64,5 @@ A full working example with training data is provided in the examples directory.
 In this case the training with the Punzi-loss is performed without dividing the sample into batches.
 When the training is not consistent and depends a lot on the inital choice of hyperparameters, additional batching can help to escape local minima.
 
-[1]: link_to_paper
+[1]: https://arxiv.org/abs/2110.00810v2
 [2]: https://arxiv.org/abs/physics/0308063 "Sensitivity of searches for new signals and its optimization"
