@@ -1,5 +1,7 @@
 # Punzinet
 
+[![DOI](https://zenodo.org/badge/392275679.svg)](https://zenodo.org/badge/latestdoi/392275679)
+
 A PyTorch implementation of [Punzi-loss: A non-differentiable metric approximation for sensitivity optimisation in the search for new
 particles][1].
 
