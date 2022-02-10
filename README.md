@@ -66,5 +66,5 @@ A full working example with training data is provided in the examples directory.
 In this case the training with the Punzi-loss is performed without dividing the sample into batches.
 When the training is not consistent and depends a lot on the inital choice of hyperparameters, additional batching can help to escape local minima.
 
-[1]: https://arxiv.org/abs/2110.00810v2
+[1]: https://doi.org/10.1140/epjc/s10052-022-10070-0
 [2]: https://arxiv.org/abs/physics/0308063 "Sensitivity of searches for new signals and its optimization"
